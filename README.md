@@ -19,3 +19,9 @@ becomes
     <animate ... />
 </path>
 ```
+
+## Compile
+
+```
+deno compile --allow-read --allow-write fix-safari.ts
+```

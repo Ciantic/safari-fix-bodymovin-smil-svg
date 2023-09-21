@@ -27,6 +27,10 @@ export function transformSvg(inputSvg: string) {
     for (const animateTag of animateTags) {
         animateTag.parentElement?.removeChild(animateTag);
         const id= animateTag.getAttribute("xlink:href")?.replace("#", "");
+        if (!id) {
+            console.warn("Could not find xlink:href attribute in animate tag, maybe the file is already fixed?");
+            continue;
+        }
         animateTag.removeAttribute("xlink:href");
         const correspondingPath = svgElement.querySelector(`#${id}`);
         if (correspondingPath) {
@@ -46,15 +50,17 @@ export function fixBodymovinSmil(inputFile: string, outputFile: string) {
 }
 
 
-const inputFile = Deno.args[0];
-let outputFile = Deno.args[1];
-
-if (inputFile) {
-    if (!outputFile) {
-        outputFile = inputFile.replace(".svg", "-fixed.svg");
-    }
+if (Deno.args.length > 0) {
+    for (const inputFile of Deno.args) {
+        let outputFile = inputFile.replace(".svg", "-fixed.svg");
     fixBodymovinSmil(inputFile, outputFile);
+        
+    }
 } else {
+    const exeName = Deno.mainModule.replace(/.*\//, "");
     console.error("No input file provided");
-    console.log("Usage example: deno run --allow-read --allow-write fix-safari.ts input.svg output.svg")
+    console.log(`Usage example: ${exeName} input.svg input2.svg`)
 }
+
+// Wait for keypress to exit
+// await Deno.stdin.read(new Uint8Array(1));
